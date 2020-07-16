@@ -1,0 +1,5 @@
+title: "Monthly Sales"
+description: "Latest Sales report"
+main: template.ipynb
+posts:
+  - "monthly/snapshots/template/*"
