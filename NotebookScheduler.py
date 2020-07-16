@@ -7,6 +7,8 @@ import papermill as pm
 from datetime import datetime
 import time
 
+from git import Repo
+
 # Notebook Scheduler
 # ---------------------------------------
 # This script helps with the automated processing of Jupyter Notebooks via papermill (https://github.com/nteract/papermill/)
@@ -14,6 +16,9 @@ import time
 
 
 snapshotDir = 'snapshots'
+
+PATH_OF_GIT_REPO = r'.'  # make sure .git folder is properly configured
+
 
 def findFiles(directory, pattern):
     # Lists all files in the specified directory that match the specified pattern
@@ -57,12 +62,25 @@ def processNotebooks(notebookDirectory, days=[]):
                 pm.execute_notebook(
                     file,
                     output_file,
-                    parameters=dict(snapshotDir = runDir + os.sep)
+                    parameters=dict(snapshotDir = runDir + os.sep,
+                                    filename="data/sales_february.xlsx")
                 )
             except Exception:
                 # If any errors occur with the notebook processing they will be logged to the log file
                 logging.exception("Error processing notebook")
 
+
+            def git_push():
+                try:
+                    repo = Repo(PATH_OF_GIT_REPO)
+                    repo.git.add(update=True)
+                    repo.index.commit(output_file)
+                    origin = repo.remote(name='origin')
+                    origin.push()
+                except:
+                    print('Some error occured while pushing the code')    
+
+            git_push()
 
 
 if __name__ == '__main__':
